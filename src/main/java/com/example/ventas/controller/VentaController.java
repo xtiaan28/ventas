@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 import java.time.ZoneId;
@@ -112,7 +111,7 @@ public class VentaController {
             }
             
         }
-        return ResponseEntity.ok("Total ganacia mes: " + formato.format(totalGananciaMes));
+        return ResponseEntity.ok("Total ganacia mes "+mes+"-"+anio+": " + formato.format(totalGananciaMes));
     }
 
     @GetMapping("/gananciasPorAño/{anio}")
@@ -140,7 +139,7 @@ public class VentaController {
             }
             
         }
-        return ResponseEntity.ok("Total ganacia año: " + formato.format(totalGananciaAnio));
+        return ResponseEntity.ok("Total ganacia año "+anio+": " + formato.format(totalGananciaAnio));
     }
 
     @PostMapping
@@ -153,12 +152,19 @@ public class VentaController {
         return ResponseEntity.ok(createdVenta);
     }
     @PutMapping("/{id}")
-    public Venta updateVenta(@PathVariable Long id, @RequestBody Venta venta) {
-        return ventaService.updateVenta(id, venta);
+    public ResponseEntity<Object> updateVenta(@PathVariable Long id, @RequestBody Venta venta) {
+        Venta updatedVenta = ventaService.updateVenta(id, venta);
+        if(updatedVenta == null){
+            log.error("Error al actualizar {}",venta);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Error al actualizar la venta id "+id)); 
+        }
+        return ResponseEntity.ok(updatedVenta);
     }
     @DeleteMapping("/{id}")
-    public void deleteVenta(@PathVariable Long id){
+    public ResponseEntity<String> deleteVenta(@PathVariable Long id){
         ventaService.deleteVenta(id);
+        ventaService.deleteVenta(id);
+        return ResponseEntity.ok("ID "+id+ " eliminado correctamente");
     }
 
     static class ErrorResponse {
